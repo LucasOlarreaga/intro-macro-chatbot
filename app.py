@@ -109,9 +109,34 @@ def retrieve_context(query: str, vectorstore, k: int = 12) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Password gate
+# ---------------------------------------------------------------------------
+def check_password():
+    if st.session_state.get("authenticated"):
+        return True
+
+    st.set_page_config(page_title="Macro101 — Course Assistant", page_icon="📚", layout="centered")
+    st.title("📚 Introduction to Macroeconomics")
+    st.subheader("Course Teaching Assistant")
+    st.divider()
+
+    password = st.text_input("Enter the course password to continue:", type="password")
+    if st.button("Access"):
+        if password == st.secrets["APP_PASSWORD"]:
+            st.session_state["authenticated"] = True
+            st.rerun()
+        else:
+            st.error("Incorrect password.")
+    return False
+
+
+# ---------------------------------------------------------------------------
 # Main app
 # ---------------------------------------------------------------------------
 def main():
+    if not check_password():
+        st.stop()
+
     st.set_page_config(
         page_title="Macro101 — Course Assistant",
         page_icon="📚",
