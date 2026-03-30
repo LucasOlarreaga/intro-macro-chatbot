@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+env/
+
+# Streamlit secrets (NEVER commit your API key)
+.streamlit/secrets.toml
+.streamlit/secrets.toml.example
+
+# Source PDFs — not needed in repo, vectorstore already built from them
+documents/
+
+# OS
+.DS_Store
+Thumbs.db
