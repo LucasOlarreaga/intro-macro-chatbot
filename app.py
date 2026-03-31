@@ -117,16 +117,24 @@ def retrieve_context(query: str, vectorstore, k: int = 12) -> str:
 # Password gate
 # ---------------------------------------------------------------------------
 def check_password():
-    cookie_manager = get_cookie_manager()
-
-    # Already authenticated this session
+    # Already authenticated this session — fastest path, no rendering needed
     if st.session_state.get("authenticated"):
         return True
 
-    # Valid auth cookie → skip password page
+    cookie_manager = get_cookie_manager()
+
+    # CookieManager reads cookies via JS and needs one render cycle to load.
+    # On the very first run, show a blank page and stop so the component can
+    # initialize. It will automatically trigger a second render with values.
+    if not st.session_state.get("cookie_check_done"):
+        st.session_state["cookie_check_done"] = True
+        st.stop()
+
+    # Second render onwards: cookie values are available
     if cookie_manager.get("macro_auth") == st.secrets["COOKIE_TOKEN"]:
         st.session_state["authenticated"] = True
-        return True
+        st.rerun()
+        return False
 
     st.title("Guiding Responsible AI in Teaching")
     st.subheader("The AI pedagogical companion of GSEM faculty.")
