@@ -160,7 +160,7 @@ def check_password():
         st.rerun()
         return False
 
-    st.title("AI Teaching Assistant")
+    st.title("AI Teaching Assistant — Introduction to Macroeconomics")
     st.subheader("Guiding Responsible AI in Teaching")
     st.caption("The AI pedagogical companion of GSEM faculty.")
     st.divider()
