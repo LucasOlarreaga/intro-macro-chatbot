@@ -1,7 +1,84 @@
+import base64
 import streamlit as st
 import anthropic
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
+
+# ---------------------------------------------------------------------------
+# Avatar SVGs
+# ---------------------------------------------------------------------------
+AVATAR_WOMAN_SVG = """
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 110" width="100" height="110">
+  <!-- Gray wavy hair (back layer) -->
+  <ellipse cx="50" cy="36" rx="30" ry="26" fill="#a0a0a0"/>
+  <ellipse cx="26" cy="52" rx="11" ry="20" fill="#a0a0a0"/>
+  <ellipse cx="74" cy="52" rx="11" ry="20" fill="#a0a0a0"/>
+  <!-- Face -->
+  <ellipse cx="50" cy="50" rx="21" ry="23" fill="#e8c4a0"/>
+  <!-- Hair top highlight -->
+  <ellipse cx="50" cy="30" rx="22" ry="14" fill="#b8b8b8"/>
+  <!-- Eyebrows -->
+  <path d="M40 40 Q44 38 48 40" stroke="#888" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M52 40 Q56 38 60 40" stroke="#888" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <!-- Eyes -->
+  <ellipse cx="44" cy="46" rx="3.5" ry="3.5" fill="#5c4033"/>
+  <ellipse cx="56" cy="46" rx="3.5" ry="3.5" fill="#5c4033"/>
+  <ellipse cx="45.2" cy="45" rx="1.2" ry="1.2" fill="white"/>
+  <ellipse cx="57.2" cy="45" rx="1.2" ry="1.2" fill="white"/>
+  <!-- Nose -->
+  <path d="M50 50 Q48 54 50 55 Q52 54 50 50" stroke="#c89070" stroke-width="1" fill="none"/>
+  <!-- Smile -->
+  <path d="M44 60 Q50 66 56 60" stroke="#c07050" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Red top -->
+  <path d="M18 110 Q28 78 50 74 Q72 78 82 110 Z" fill="#c0392b"/>
+  <!-- Necklace chain -->
+  <path d="M39 75 Q50 80 61 75" stroke="#b8952a" stroke-width="1.5" fill="none"/>
+  <!-- Pendant -->
+  <circle cx="50" cy="81" r="4.5" fill="#b8952a"/>
+  <circle cx="50" cy="81" r="2.5" fill="#d4af37"/>
+</svg>
+"""
+
+AVATAR_MAN_SVG = """
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 110" width="100" height="110">
+  <!-- Dark hair -->
+  <ellipse cx="50" cy="33" rx="24" ry="20" fill="#1a1a1a"/>
+  <!-- Gray temples -->
+  <ellipse cx="28" cy="42" rx="7" ry="12" fill="#6e6e6e"/>
+  <ellipse cx="72" cy="42" rx="7" ry="12" fill="#6e6e6e"/>
+  <!-- Face -->
+  <ellipse cx="50" cy="50" rx="20" ry="22" fill="#d4a882"/>
+  <!-- Hair top -->
+  <ellipse cx="50" cy="28" rx="20" ry="12" fill="#222"/>
+  <!-- Eyebrows -->
+  <path d="M40 40 Q44 38 48 39" stroke="#333" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M52 39 Q56 38 60 40" stroke="#333" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- Eyes -->
+  <ellipse cx="44" cy="46" rx="3.5" ry="3.5" fill="#3c2a1e"/>
+  <ellipse cx="56" cy="46" rx="3.5" ry="3.5" fill="#3c2a1e"/>
+  <ellipse cx="45.2" cy="45" rx="1.2" ry="1.2" fill="white"/>
+  <ellipse cx="57.2" cy="45" rx="1.2" ry="1.2" fill="white"/>
+  <!-- Nose -->
+  <path d="M50 50 Q48 54 50 55 Q52 54 50 50" stroke="#b07848" stroke-width="1" fill="none"/>
+  <!-- Smile -->
+  <path d="M44 60 Q50 66 56 60" stroke="#a06040" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Dark suit jacket -->
+  <path d="M14 110 Q26 76 50 73 Q74 76 86 110 Z" fill="#1c2b3a"/>
+  <!-- White shirt -->
+  <path d="M42 73 L50 95 L58 73 Q50 78 42 73 Z" fill="#f0f0f0"/>
+  <!-- Tie (dark red) -->
+  <polygon points="47,73 50,92 53,73 51,78 49,78" fill="#8b1a1a"/>
+</svg>
+"""
+
+def svg_to_data_url(svg: str) -> str:
+    encoded = base64.b64encode(svg.strip().encode()).decode()
+    return f"data:image/svg+xml;base64,{encoded}"
+
+AVATARS = {
+    "Professor (F)": {"svg": AVATAR_WOMAN_SVG, "emoji": "👩‍🏫"},
+    "Professor (M)": {"svg": AVATAR_MAN_SVG,   "emoji": "👨‍🏫"},
+}
 
 # ---------------------------------------------------------------------------
 # System prompt — edit this to adjust the assistant's personality/behaviour
@@ -176,7 +253,7 @@ def main():
         st.stop()
 
     st.set_page_config(
-        page_title="Macro101 — Course Assistant",
+        page_title="Intro to Macro — Course Assistant",
         page_icon="📚",
         layout="centered",
     )
@@ -205,9 +282,40 @@ def main():
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
+    # Sidebar
+    with st.sidebar:
+        st.header("Options")
+
+        # Avatar selector
+        st.subheader("Teaching Assistant")
+        selected = st.radio(
+            "Choose appearance:",
+            list(AVATARS.keys()),
+            index=st.session_state.get("avatar_index", 0),
+            horizontal=True,
+        )
+        st.session_state["avatar_index"] = list(AVATARS.keys()).index(selected)
+        avatar_emoji = AVATARS[selected]["emoji"]
+        avatar_svg   = AVATARS[selected]["svg"]
+
+        # Display the illustrated character
+        st.markdown(
+            f"""<div style="text-align:center; margin-top:8px;">
+                <img src="{svg_to_data_url(avatar_svg)}" width="110"/>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+
+        st.divider()
+        if st.button("🗑️ Clear conversation"):
+            st.session_state.messages = []
+            st.rerun()
+        st.caption("Powered by Claude Haiku · Built with Streamlit")
+
     # Render existing messages
     for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
+        avatar = avatar_emoji if msg["role"] == "assistant" else "user"
+        with st.chat_message(msg["role"], avatar=avatar):
             st.markdown(msg["content"])
 
     # Chat input
@@ -221,7 +329,7 @@ def main():
         system = SYSTEM_PROMPT.format(context=context)
 
         # Call Claude
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar=avatar_emoji):
             with st.spinner("Thinking…"):
                 response = client.messages.create(
                     model="claude-haiku-4-5-20251001",
@@ -236,14 +344,6 @@ def main():
             st.markdown(reply)
 
         st.session_state.messages.append({"role": "assistant", "content": reply})
-
-    # Sidebar: clear conversation
-    with st.sidebar:
-        st.header("Options")
-        if st.button("🗑️ Clear conversation"):
-            st.session_state.messages = []
-            st.rerun()
-        st.caption("Powered by Claude Haiku · Built with Streamlit")
 
 
 if __name__ == "__main__":
