@@ -5,9 +5,8 @@ import extra_streamlit_components as stx
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-@st.cache_resource
 def get_cookie_manager():
-    return stx.CookieManager()
+    return stx.CookieManager(key="global_cookie_manager")
 
 # ---------------------------------------------------------------------------
 # System prompt — edit this to adjust the assistant's personality/behaviour
@@ -129,8 +128,6 @@ def check_password():
         st.session_state["authenticated"] = True
         return True
 
-    st.set_page_config(page_title="Macro101 — Course Assistant", page_icon="📚", layout="centered")
-
     st.title("Guiding Responsible AI in Teaching")
     st.subheader("The AI pedagogical companion of GSEM faculty.")
     st.divider()
@@ -194,14 +191,14 @@ def check_password():
 # Main app
 # ---------------------------------------------------------------------------
 def main():
-    if not check_password():
-        st.stop()
-
     st.set_page_config(
         page_title="Macro101 — Course Assistant",
         page_icon="📚",
         layout="centered",
     )
+
+    if not check_password():
+        st.stop()
 
     st.title("📚 Introduction to Macroeconomics")
     st.subheader("Course Teaching Assistant")
