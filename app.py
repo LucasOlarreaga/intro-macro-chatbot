@@ -252,6 +252,25 @@ def main():
 
     client = anthropic.Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
 
+    # Sidebar — must be defined before chat input so direct_mode is available
+    with st.sidebar:
+        st.header("Options")
+        st.divider()
+        direct_mode = st.toggle(
+            "Answer directly",
+            value=False,
+            help="Off: guides you toward the answer (default). On: gives the answer directly.",
+        )
+        if direct_mode:
+            st.caption("💡 Direct mode — full answers provided.")
+        else:
+            st.caption("🎓 Guided mode — Socratic approach.")
+        st.divider()
+        if st.button("🗑️ Clear conversation"):
+            st.session_state.messages = []
+            st.rerun()
+        st.caption("Powered by Claude Haiku · Built with Streamlit")
+
     # Initialise chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -287,25 +306,6 @@ def main():
             st.markdown(reply)
 
         st.session_state.messages.append({"role": "assistant", "content": reply})
-
-    # Sidebar
-    with st.sidebar:
-        st.header("Options")
-        st.divider()
-        direct_mode = st.toggle(
-            "Answer directly",
-            value=False,
-            help="Off: guides you toward the answer (default). On: gives the answer directly.",
-        )
-        if direct_mode:
-            st.caption("💡 Direct mode — full answers provided.")
-        else:
-            st.caption("🎓 Guided mode — Socratic approach.")
-        st.divider()
-        if st.button("🗑️ Clear conversation"):
-            st.session_state.messages = []
-            st.rerun()
-        st.caption("Powered by Claude Haiku · Built with Streamlit")
 
 
 if __name__ == "__main__":
