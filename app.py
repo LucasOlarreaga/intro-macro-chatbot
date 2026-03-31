@@ -1,13 +1,12 @@
-from datetime import datetime, timedelta
 from PIL import Image
 import streamlit as st
 import anthropic
-import extra_streamlit_components as stx
+from streamlit_cookies_controller import CookieController
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-def get_cookie_manager():
-    return stx.CookieManager(key="global_cookie_manager")
+def get_cookie_controller():
+    return CookieController()
 
 # ---------------------------------------------------------------------------
 # System prompt — edit this to adjust the assistant's personality/behaviour
@@ -145,17 +144,16 @@ def check_password():
     if st.session_state.get("authenticated"):
         return True
 
-    cookie_manager = get_cookie_manager()
+    controller = get_cookie_controller()
 
-    # CookieManager reads cookies via JS and needs one render cycle to load.
-    # On the very first run, show a blank page and stop so the component can
-    # initialize. It will automatically trigger a second render with values.
+    # Cookie controller reads via JS and needs one render cycle to load.
+    # Show a blank page on the first pass so it can initialise silently.
     if not st.session_state.get("cookie_check_done"):
         st.session_state["cookie_check_done"] = True
         st.stop()
 
     # Second render onwards: cookie values are available
-    if cookie_manager.get("macro_auth") == st.secrets["COOKIE_TOKEN"]:
+    if controller.get("macro_auth") == st.secrets["COOKIE_TOKEN"]:
         st.session_state["authenticated"] = True
         st.rerun()
         return False
@@ -204,13 +202,11 @@ def check_password():
 
     if st.button("Access", disabled=not acknowledged):
         if password == st.secrets["APP_PASSWORD"]:
-            # Set cookie valid for 7 days
-            expires = datetime.now() + timedelta(days=7)
-            cookie_manager.set(
+            # Set cookie valid for 7 days (max_age in seconds)
+            controller.set(
                 "macro_auth",
                 st.secrets["COOKIE_TOKEN"],
-                expires_at=expires,
-                key="set_auth_cookie",
+                max_age=7 * 24 * 60 * 60,
             )
             st.session_state["authenticated"] = True
             st.rerun()
