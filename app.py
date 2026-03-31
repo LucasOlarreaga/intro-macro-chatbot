@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from PIL import Image
 import streamlit as st
 import anthropic
 import extra_streamlit_components as stx
@@ -225,7 +226,7 @@ def check_password():
 def main():
     st.set_page_config(
         page_title="Macro101 — AI Teaching Assistant",
-        page_icon="📚",
+        page_icon=Image.open("GSEM logo.jpg"),
         layout="centered",
     )
 
