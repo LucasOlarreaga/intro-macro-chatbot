@@ -116,17 +116,55 @@ def check_password():
         return True
 
     st.set_page_config(page_title="Macro101 — Course Assistant", page_icon="📚", layout="centered")
-    st.title("📚 Introduction to Macroeconomics")
-    st.subheader("Course Teaching Assistant")
+
+    st.title("Guiding Responsible AI in Teaching")
+    st.subheader("The AI pedagogical companion of GSEM faculty.")
     st.divider()
 
+    st.markdown(
+        """
+        This platform supports you in integrating Generative AI into your teaching and assessment
+        practices, in alignment with the guidelines validated by the **GSEM AI Taskforce**.
+        It is designed to help you:
+
+        - Strategically incorporate AI into course design
+        - Develop academically rigorous learning activities
+        - Rethink assessment methods in the AI era
+        - Ensure alignment with institutional standards and academic integrity principles
+
+        ---
+
+        #### Responsible Use
+
+        This assistant provides structured guidance based exclusively on validated institutional
+        documents. It does not replace academic judgment or institutional policy.
+        Faculty members remain solely responsible for:
+
+        - Final pedagogical decisions
+        - The validation of generated content
+        - Compliance with academic and data protection standards
+
+        > **No confidential or student-sensitive data should be entered into the system.**
+
+        ---
+
+        *Powered by GSEM*
+        """
+    )
+
+    acknowledged = st.checkbox(
+        "I acknowledge that this assistant is a support tool that may generate inaccuracies, "
+        "the verification of which remains my responsibility."
+    )
     password = st.text_input("Enter the course password to continue:", type="password")
-    if st.button("Access"):
+
+    if st.button("Access", disabled=not acknowledged):
         if password == st.secrets["APP_PASSWORD"]:
             st.session_state["authenticated"] = True
             st.rerun()
         else:
             st.error("Incorrect password.")
+
     return False
 
 
