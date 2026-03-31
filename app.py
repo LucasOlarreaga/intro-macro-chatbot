@@ -136,8 +136,9 @@ def check_password():
         st.rerun()
         return False
 
-    st.title("Guiding Responsible AI in Teaching")
-    st.subheader("The AI pedagogical companion of GSEM faculty.")
+    st.title("AI Teaching Assistant")
+    st.subheader("Guiding Responsible AI in Teaching")
+    st.caption("The AI pedagogical companion of GSEM faculty.")
     st.divider()
 
     st.markdown(
@@ -200,7 +201,7 @@ def check_password():
 # ---------------------------------------------------------------------------
 def main():
     st.set_page_config(
-        page_title="Macro101 — Course Assistant",
+        page_title="Macro101 — AI Teaching Assistant",
         page_icon="📚",
         layout="centered",
     )
@@ -209,7 +210,7 @@ def main():
         st.stop()
 
     st.title("📚 Introduction to Macroeconomics")
-    st.subheader("Course Teaching Assistant")
+    st.subheader("AI Teaching Assistant")
     st.caption(
         "Ask me anything covered in the course — lectures, textbook, problem sets, or past exams. "
         "I'll guide you through the material rather than just giving you the answer!"
