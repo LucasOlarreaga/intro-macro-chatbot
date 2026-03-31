@@ -1,7 +1,13 @@
+from datetime import datetime, timedelta
 import streamlit as st
 import anthropic
+import extra_streamlit_components as stx
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
+
+@st.cache_resource
+def get_cookie_manager():
+    return stx.CookieManager()
 
 # ---------------------------------------------------------------------------
 # System prompt — edit this to adjust the assistant's personality/behaviour
@@ -112,7 +118,15 @@ def retrieve_context(query: str, vectorstore, k: int = 12) -> str:
 # Password gate
 # ---------------------------------------------------------------------------
 def check_password():
+    cookie_manager = get_cookie_manager()
+
+    # Already authenticated this session
     if st.session_state.get("authenticated"):
+        return True
+
+    # Valid auth cookie → skip password page
+    if cookie_manager.get("macro_auth") == st.secrets["COOKIE_TOKEN"]:
+        st.session_state["authenticated"] = True
         return True
 
     st.set_page_config(page_title="Macro101 — Course Assistant", page_icon="📚", layout="centered")
@@ -160,6 +174,14 @@ def check_password():
 
     if st.button("Access", disabled=not acknowledged):
         if password == st.secrets["APP_PASSWORD"]:
+            # Set cookie valid for 7 days
+            expires = datetime.now() + timedelta(days=7)
+            cookie_manager.set(
+                "macro_auth",
+                st.secrets["COOKIE_TOKEN"],
+                expires_at=expires,
+                key="set_auth_cookie",
+            )
             st.session_state["authenticated"] = True
             st.rerun()
         else:
