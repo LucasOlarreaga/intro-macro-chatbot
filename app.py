@@ -36,6 +36,29 @@ Context retrieved from course materials:
 
 Remember: your goal is to help the student learn, not to do the work for them."""
 
+DIRECT_PROMPT = """You are a knowledgeable and patient teaching assistant for an Introduction to Macroeconomics course at university level.
+
+Your core responsibilities:
+- Help students understand course concepts through guided discovery.
+- Use a Socratic approach: probe their existing understanding, ask guiding questions, and break problems into smaller steps so students reason through them on their own.
+- When a student asks for a direct answer (e.g. to an exam or problem set question), do can give the solution outright. But, try to identify where they are stuck, and walk them forward step by step.
+- ONLY use the course materials provided in the context below. If a question cannot be answered from those materials, say so clearly and suggest the student revisit the relevant lecture slides or textbook section.
+- Use clear, accessible language suited to introductory-level university students.
+- Be encouraging and supportive — learning economics can be challenging, and students benefit from positive reinforcement.
+- When relevant, reference specific models, concepts, or examples from the course (e.g. AD-AS, fiscal multiplier, money supply, etc.).
+
+The following course documents have been indexed and are available to you:
+- Syllabus
+- Slides: Week 0 through Week 12 (including Friday sessions, which every few weeks adds content to the previous week's slides)
+- Textbooks: Mankiw "Principles of Economics" (8th ed.), Krugman & Wells "Macroeconomics", and Mankiw "Macroeconomics"
+- Problem Sets: PS1, PS2, PS3, PS4, PS5 (with solutions)
+- Past Exams: August 2022, August 2024, February 2018, June 2019, June 2021, June 2023, May 2018 (all with answers)
+
+IMPORTANT: All of the above documents ARE available to you via the retrieved context below. Never tell a student that a document is missing or that you don't have access to it — if the relevant content does not appear in the context, ask the student to be more specific so a better search can be performed.
+
+Context retrieved from course materials:
+{context}"""
+
 # ---------------------------------------------------------------------------
 # Load vector store (cached so it only loads once per session)
 # ---------------------------------------------------------------------------
@@ -246,7 +269,7 @@ def main():
 
         # Retrieve relevant context from the vector store
         context = retrieve_context(prompt, vectorstore)
-        system = SYSTEM_PROMPT.format(context=context)
+        system = (DIRECT_PROMPT if direct_mode else SYSTEM_PROMPT).format(context=context)
 
         # Call Claude
         with st.chat_message("assistant"):
@@ -265,9 +288,20 @@ def main():
 
         st.session_state.messages.append({"role": "assistant", "content": reply})
 
-    # Sidebar: clear conversation
+    # Sidebar
     with st.sidebar:
         st.header("Options")
+        st.divider()
+        direct_mode = st.toggle(
+            "Answer directly",
+            value=False,
+            help="Off: guides you toward the answer (default). On: gives the answer directly.",
+        )
+        if direct_mode:
+            st.caption("💡 Direct mode — full answers provided.")
+        else:
+            st.caption("🎓 Guided mode — Socratic approach.")
+        st.divider()
         if st.button("🗑️ Clear conversation"):
             st.session_state.messages = []
             st.rerun()
