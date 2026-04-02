@@ -127,15 +127,17 @@ def _tp_kw(n):
         f"travaux pratiques {n}", f"feuille {n}", f"td{n}", f"td {n}",
     ]
 
-def _week_kw(n):
+def _week_kw(n, *topics):
     """All ways a student might refer to week N slides (English)."""
-    return [
+    base = [
         f"week {n}", f"wk {n}", f"wk{n}",
         f"lecture {n}", f"class {n}",
         f"slides week {n}", f"slide week {n}",
         f"presentation week {n}", f"powerpoint week {n}", f"ppt week {n}",
         f"notes week {n}", f"week {n} slides", f"week {n} lecture",
+        f"week {n} notes", f"week {n} ppt", f"week {n} presentation",
     ]
+    return base + list(topics)
 
 def _ch_kw(n, *topics):
     """All ways a student might refer to chapter N slides (French)."""
@@ -155,20 +157,33 @@ EN_DOC_KEYWORDS = [
     (_ps_kw(4), lambda s: "ps4" in s.lower() or "ps 4" in s.lower()),
     (_ps_kw(5), lambda s: "ps5" in s.lower() or "ps 5" in s.lower()),
 
-    # --- Slides / lectures by week ---
-    (_week_kw(0),  lambda s: "week 0" in s.lower()),
-    (_week_kw(1),  lambda s: "week 1" in s.lower() and not any(x in s.lower() for x in ["week 10","week 11","week 12"])),
-    (_week_kw(2),  lambda s: "week 2" in s.lower()),
-    (_week_kw(3),  lambda s: "week 3" in s.lower()),
-    (_week_kw(4),  lambda s: "week 4" in s.lower()),
-    (_week_kw(5),  lambda s: "week 5" in s.lower()),
-    (_week_kw(6),  lambda s: "week 6" in s.lower()),
-    (_week_kw(7),  lambda s: "week 7" in s.lower()),
-    (_week_kw(8),  lambda s: "week 8" in s.lower()),
-    (_week_kw(9),  lambda s: "week 9" in s.lower()),
-    (_week_kw(10), lambda s: "week10" in s.lower() or "week 10" in s.lower()),
-    (_week_kw(11), lambda s: "week11" in s.lower() or "week 11" in s.lower()),
-    (_week_kw(12), lambda s: "week12" in s.lower() or "week 12" in s.lower()),
+    # --- Slides / lectures by week (with topic name synonyms) ---
+    (_week_kw(0,  "introduction", "overview", "course intro", "what is macroeconomics"),
+     lambda s: "week 0" in s.lower()),
+    (_week_kw(1,  "gdp", "gross domestic product", "national accounts", "output", "measuring output"),
+     lambda s: "week 1" in s.lower() and not any(x in s.lower() for x in ["week 10","week 11","week 12"])),
+    (_week_kw(2,  "inflation", "cpi", "consumer price index", "price level", "measuring prices"),
+     lambda s: "week 2" in s.lower()),
+    (_week_kw(3,  "unemployment", "labour market", "labor market", "jobless"),
+     lambda s: "week 3" in s.lower()),
+    (_week_kw(4,  "savings", "investment", "financial market", "loanable funds", "closed economy equilibrium"),
+     lambda s: "week 4" in s.lower()),
+    (_week_kw(5,  "money", "monetary system", "money supply", "central bank", "banking"),
+     lambda s: "week 5" in s.lower()),
+    (_week_kw(6,  "monetary growth", "quantity theory", "seigniorage", "hyperinflation"),
+     lambda s: "week 6" in s.lower()),
+    (_week_kw(7,  "open economy", "trade balance", "current account", "capital flows", "net exports"),
+     lambda s: "week 7" in s.lower()),
+    (_week_kw(8,  "exchange rate", "forex", "purchasing power parity", "ppp", "nominal exchange rate"),
+     lambda s: "week 8" in s.lower()),
+    (_week_kw(9,  "open economy equilibrium", "mundell-fleming", "small open economy"),
+     lambda s: "week 9" in s.lower()),
+    (_week_kw(10, "aggregate demand", "aggregate supply", "ad-as", "ad as", "short run fluctuations"),
+     lambda s: "week10" in s.lower() or "week 10" in s.lower()),
+    (_week_kw(11, "fiscal policy", "monetary policy", "multiplier", "government spending", "taxes", "interest rates"),
+     lambda s: "week11" in s.lower() or "week 11" in s.lower()),
+    (_week_kw(12, "phillips curve", "inflation unemployment tradeoff", "short run phillips", "long run phillips", "great recession", "lockdown"),
+     lambda s: "week12" in s.lower() or "week 12" in s.lower()),
 
     # --- Exams ---
     (["exam", "exams", "past exam", "previous exam", "old exam",
