@@ -133,11 +133,11 @@ EN_DOC_KEYWORDS = [
 
 FR_DOC_KEYWORDS = [
     # Problem sets / séries
-    (["ps1", "ps 1", "série 1", "serie 1", "td1", "td 1"],  lambda s: "ps1" in s.lower() or "ps 1" in s.lower() or "série 1" in s.lower() or "serie 1" in s.lower()),
-    (["ps2", "ps 2", "série 2", "serie 2", "td2", "td 2"],  lambda s: "ps2" in s.lower() or "ps 2" in s.lower() or "série 2" in s.lower() or "serie 2" in s.lower()),
-    (["ps3", "ps 3", "série 3", "serie 3", "td3", "td 3"],  lambda s: "ps3" in s.lower() or "ps 3" in s.lower() or "série 3" in s.lower() or "serie 3" in s.lower()),
-    (["ps4", "ps 4", "série 4", "serie 4", "td4", "td 4"],  lambda s: "ps4" in s.lower() or "ps 4" in s.lower() or "série 4" in s.lower() or "serie 4" in s.lower()),
-    (["ps5", "ps 5", "série 5", "serie 5", "td5", "td 5"],  lambda s: "ps5" in s.lower() or "ps 5" in s.lower() or "série 5" in s.lower() or "serie 5" in s.lower()),
+    (["tp1", "tp 1", "ps1", "ps 1", "série 1", "serie 1"],  lambda s: "tp1" in s.lower() or "ps1" in s.lower() or "ps 1" in s.lower()),
+    (["tp2", "tp 2", "ps2", "ps 2", "série 2", "serie 2"],  lambda s: "tp2" in s.lower() or "ps2" in s.lower() or "ps 2" in s.lower()),
+    (["tp3", "tp 3", "ps3", "ps 3", "série 3", "serie 3"],  lambda s: "tp3" in s.lower() or "ps3" in s.lower() or "ps 3" in s.lower()),
+    (["tp4", "tp 4", "ps4", "ps 4", "série 4", "serie 4"],  lambda s: "tp4" in s.lower() or "ps4" in s.lower() or "ps 4" in s.lower()),
+    (["tp5", "tp 5", "ps5", "ps 5", "série 5", "serie 5"],  lambda s: "tp5" in s.lower() or "ps5" in s.lower() or "ps 5" in s.lower()),
     # Chapters by number and topic name
     (["chapitre 1", "ch. 1", "ch 1", "introduction", "approche macroéconomique"],
      lambda s: any(x in s.lower() for x in ["ch. 1", "ch.1", "chapitre 1", "chap1", "chap 1"])),
