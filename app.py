@@ -109,65 +109,116 @@ Contexte récupéré depuis les documents du cours :
 # ---------------------------------------------------------------------------
 # Document keyword maps
 # ---------------------------------------------------------------------------
+
+# Shared helpers for query-side synonyms
+def _ps_kw(n):
+    """All ways a student might refer to problem set N (English)."""
+    return [
+        f"ps{n}", f"ps {n}", f"problem set {n}", f"pset{n}", f"pset {n}",
+        f"exercise set {n}", f"exercises {n}", f"assignment {n}",
+        f"hw{n}", f"hw {n}", f"homework {n}",
+    ]
+
+def _tp_kw(n):
+    """All ways a student might refer to TP N (French)."""
+    return [
+        f"tp{n}", f"tp {n}", f"ps{n}", f"ps {n}",
+        f"série {n}", f"serie {n}", f"exercices {n}",
+        f"travaux pratiques {n}", f"feuille {n}", f"td{n}", f"td {n}",
+    ]
+
+def _week_kw(n):
+    """All ways a student might refer to week N slides (English)."""
+    return [
+        f"week {n}", f"wk {n}", f"wk{n}",
+        f"lecture {n}", f"class {n}",
+        f"slides week {n}", f"slide week {n}",
+        f"presentation week {n}", f"powerpoint week {n}", f"ppt week {n}",
+        f"notes week {n}", f"week {n} slides", f"week {n} lecture",
+    ]
+
+def _ch_kw(n, *topics):
+    """All ways a student might refer to chapter N slides (French)."""
+    base = [
+        f"chapitre {n}", f"ch. {n}", f"ch {n}", f"ch.{n}", f"chap {n}", f"chap{n}",
+        f"cours {n}", f"séance {n}", f"seance {n}",
+        f"slides chapitre {n}", f"diapos chapitre {n}", f"présentation chapitre {n}",
+        f"powerpoint chapitre {n}", f"ppt chapitre {n}",
+    ]
+    return base + list(topics)
+
 EN_DOC_KEYWORDS = [
-    (["ps1", "ps 1", "problem set 1"],  lambda s: "ps1" in s.lower() or "ps 1" in s.lower()),
-    (["ps2", "ps 2", "problem set 2"],  lambda s: "ps2" in s.lower() or "ps 2" in s.lower()),
-    (["ps3", "ps 3", "problem set 3"],  lambda s: "ps3" in s.lower() or "ps 3" in s.lower()),
-    (["ps4", "ps 4", "problem set 4"],  lambda s: "ps4" in s.lower() or "ps 4" in s.lower()),
-    (["ps5", "ps 5", "problem set 5"],  lambda s: "ps5" in s.lower() or "ps 5" in s.lower()),
-    (["week 0"],  lambda s: "week 0" in s.lower()),
-    (["week 1"],  lambda s: "week 1" in s.lower() and not any(x in s.lower() for x in ["week 10","week 11","week 12"])),
-    (["week 2"],  lambda s: "week 2" in s.lower()),
-    (["week 3"],  lambda s: "week 3" in s.lower()),
-    (["week 4"],  lambda s: "week 4" in s.lower()),
-    (["week 5"],  lambda s: "week 5" in s.lower()),
-    (["week 6"],  lambda s: "week 6" in s.lower()),
-    (["week 7"],  lambda s: "week 7" in s.lower()),
-    (["week 8"],  lambda s: "week 8" in s.lower()),
-    (["week 9"],  lambda s: "week 9" in s.lower()),
-    (["week 10"], lambda s: "week10" in s.lower() or "week 10" in s.lower()),
-    (["week 11"], lambda s: "week11" in s.lower() or "week 11" in s.lower()),
-    (["week 12"], lambda s: "week12" in s.lower() or "week 12" in s.lower()),
-    (["exam", "past exam", "previous exam", "old exam"], lambda s: "exam" in s.lower()),
+    # --- Problem sets ---
+    (_ps_kw(1), lambda s: "ps1" in s.lower() or "ps 1" in s.lower()),
+    (_ps_kw(2), lambda s: "ps2" in s.lower() or "ps 2" in s.lower()),
+    (_ps_kw(3), lambda s: "ps3" in s.lower() or "ps 3" in s.lower()),
+    (_ps_kw(4), lambda s: "ps4" in s.lower() or "ps 4" in s.lower()),
+    (_ps_kw(5), lambda s: "ps5" in s.lower() or "ps 5" in s.lower()),
+
+    # --- Slides / lectures by week ---
+    (_week_kw(0),  lambda s: "week 0" in s.lower()),
+    (_week_kw(1),  lambda s: "week 1" in s.lower() and not any(x in s.lower() for x in ["week 10","week 11","week 12"])),
+    (_week_kw(2),  lambda s: "week 2" in s.lower()),
+    (_week_kw(3),  lambda s: "week 3" in s.lower()),
+    (_week_kw(4),  lambda s: "week 4" in s.lower()),
+    (_week_kw(5),  lambda s: "week 5" in s.lower()),
+    (_week_kw(6),  lambda s: "week 6" in s.lower()),
+    (_week_kw(7),  lambda s: "week 7" in s.lower()),
+    (_week_kw(8),  lambda s: "week 8" in s.lower()),
+    (_week_kw(9),  lambda s: "week 9" in s.lower()),
+    (_week_kw(10), lambda s: "week10" in s.lower() or "week 10" in s.lower()),
+    (_week_kw(11), lambda s: "week11" in s.lower() or "week 11" in s.lower()),
+    (_week_kw(12), lambda s: "week12" in s.lower() or "week 12" in s.lower()),
+
+    # --- Exams ---
+    (["exam", "exams", "past exam", "previous exam", "old exam",
+      "past test", "previous test", "practice exam", "mock exam",
+      "midterm", "final exam", "sample exam"],
+     lambda s: "exam" in s.lower()),
 ]
 
 FR_DOC_KEYWORDS = [
-    # Problem sets / séries
-    (["tp1", "tp 1", "ps1", "ps 1", "série 1", "serie 1"],  lambda s: "tp1" in s.lower() or "ps1" in s.lower() or "ps 1" in s.lower()),
-    (["tp2", "tp 2", "ps2", "ps 2", "série 2", "serie 2"],  lambda s: "tp2" in s.lower() or "ps2" in s.lower() or "ps 2" in s.lower()),
-    (["tp3", "tp 3", "ps3", "ps 3", "série 3", "serie 3"],  lambda s: "tp3" in s.lower() or "ps3" in s.lower() or "ps 3" in s.lower()),
-    (["tp4", "tp 4", "ps4", "ps 4", "série 4", "serie 4"],  lambda s: "tp4" in s.lower() or "ps4" in s.lower() or "ps 4" in s.lower()),
-    (["tp5", "tp 5", "ps5", "ps 5", "série 5", "serie 5"],  lambda s: "tp5" in s.lower() or "ps5" in s.lower() or "ps 5" in s.lower()),
-    # Chapters by number and topic name
-    (["chapitre 1", "ch. 1", "ch 1", "introduction", "approche macroéconomique"],
-     lambda s: any(x in s.lower() for x in ["ch. 1", "ch.1", "chapitre 1", "chap1", "chap 1"])),
-    (["chapitre 2", "ch. 2", "ch 2", "pib", "produit intérieur brut"],
-     lambda s: any(x in s.lower() for x in ["ch. 2", "ch.2", "chapitre 2", "chap 2"])),
-    (["chapitre 3", "ch. 3", "ch 3", "ipc", "indice des prix"],
-     lambda s: any(x in s.lower() for x in ["ch. 3", "ch.3", "chapitre 3", "chap 3"])),
-    (["chapitre 4", "ch. 4", "ch 4", "chômage", "chomage"],
-     lambda s: any(x in s.lower() for x in ["ch. 4", "ch.4", "chapitre 4", "chap 4"])),
-    (["chapitre 5", "ch. 5", "ch 5", "épargne", "investissement", "équilibre"],
-     lambda s: any(x in s.lower() for x in ["ch. 5", "ch.5", "chapitre 5", "chap 5"])),
-    (["chapitre 6", "ch. 6", "ch 6", "système monétaire", "systeme monetaire"],
-     lambda s: any(x in s.lower() for x in ["ch. 6", "ch.6", "chapitre 6", "chap 6"])),
-    (["chapitre 7", "ch. 7", "ch 7", "croissance monétaire", "inflation"],
-     lambda s: any(x in s.lower() for x in ["ch. 7", "ch.7", "chapitre 7", "chap 7"])),
-    (["chapitre 8", "ch. 8", "ch 8", "concepts de base", "économie ouverte"],
-     lambda s: any(x in s.lower() for x in ["ch. 8", "ch.8", "chapitre 8", "chap 8"])),
-    (["chapitre 9", "ch. 9", "ch 9", "taux de change"],
-     lambda s: any(x in s.lower() for x in ["ch. 9", "ch.9", "chapitre 9", "chap 9"])),
-    (["chapitre 10", "ch. 10", "ch 10", "modèle macroéconomique"],
-     lambda s: any(x in s.lower() for x in ["ch. 10", "ch.10", "chapitre 10", "chap 10"])),
-    (["chapitre 11", "ch. 11", "ch 11", "fluctuations", "offre agrégée", "demande agrégée"],
-     lambda s: any(x in s.lower() for x in ["ch. 11", "ch.11", "chapitre 11", "chap 11"])),
-    (["chapitre 12", "ch. 12", "ch 12", "politique monétaire", "politique fiscale"],
-     lambda s: any(x in s.lower() for x in ["ch. 12", "ch.12", "chapitre 12", "chap 12"])),
-    (["chapitre 13", "ch. 13", "ch 13", "arbitrage", "chômage et inflation"],
-     lambda s: any(x in s.lower() for x in ["ch. 13", "ch.13", "chapitre 13", "chap 13"])),
-    (["chapitre 14", "ch. 14", "ch 14", "grande récession", "lockdown"],
-     lambda s: any(x in s.lower() for x in ["ch. 14", "ch.14", "chapitre 14", "chap 14"])),
-    (["examen", "examen passé", "ancien examen", "exam"], lambda s: "exam" in s.lower()),
+    # --- Séries d'exercices / TP ---
+    (_tp_kw(1), lambda s: "tp1" in s.lower() or "tp 1" in s.lower()),
+    (_tp_kw(2), lambda s: "tp2" in s.lower() or "tp 2" in s.lower()),
+    (_tp_kw(3), lambda s: "tp3" in s.lower() or "tp 3" in s.lower()),
+    (_tp_kw(4), lambda s: "tp4" in s.lower() or "tp 4" in s.lower()),
+    (_tp_kw(5), lambda s: "tp5" in s.lower() or "tp 5" in s.lower()),
+
+    # --- Slides / cours par chapitre ---
+    (_ch_kw(1,  "introduction", "approche macroéconomique"),
+     lambda s: any(x in s.lower() for x in ["01_", "ch. 1", "ch.1", "chapitre 1", "chap 1"])),
+    (_ch_kw(2,  "pib", "produit intérieur brut", "gdp"),
+     lambda s: any(x in s.lower() for x in ["02_", "ch. 2", "ch.2", "chapitre 2", "chap 2"])),
+    (_ch_kw(3,  "ipc", "indice des prix", "inflation des prix", "cpi"),
+     lambda s: any(x in s.lower() for x in ["03_", "ch. 3", "ch.3", "chapitre 3", "chap 3"])),
+    (_ch_kw(4,  "chômage", "chomage", "unemployment"),
+     lambda s: any(x in s.lower() for x in ["04_", "ch. 4", "ch.4", "chapitre 4", "chap 4"])),
+    (_ch_kw(5,  "épargne", "epargne", "investissement", "équilibre économie fermée", "marché financier"),
+     lambda s: any(x in s.lower() for x in ["05_", "ch. 5", "ch.5", "chapitre 5", "chap 5"])),
+    (_ch_kw(6,  "monnaie", "système monétaire", "systeme monetaire", "banque centrale"),
+     lambda s: any(x in s.lower() for x in ["06_", "ch. 6", "ch.6", "chapitre 6", "chap 6"])),
+    (_ch_kw(7,  "inflation", "croissance monétaire", "théorie quantitative"),
+     lambda s: any(x in s.lower() for x in ["07_", "ch. 7", "ch.7", "chapitre 7", "chap 7"])),
+    (_ch_kw(8,  "économie ouverte", "concepts de base", "balance commerciale", "flux de capitaux"),
+     lambda s: any(x in s.lower() for x in ["08_", "ch. 8", "ch.8", "chapitre 8", "chap 8"])),
+    (_ch_kw(9,  "taux de change", "change", "forex"),
+     lambda s: any(x in s.lower() for x in ["09_", "ch. 9", "ch.9", "chapitre 9", "chap 9"])),
+    (_ch_kw(10, "modèle macroéconomique", "equilibre économie ouverte"),
+     lambda s: any(x in s.lower() for x in ["10_", "ch. 10", "ch.10", "chapitre 10", "chap 10"])),
+    (_ch_kw(11, "fluctuations", "offre agrégée", "demande agrégée", "da-oa", "oa-da", "ad-as"),
+     lambda s: any(x in s.lower() for x in ["11_", "ch. 11", "ch.11", "chapitre 11", "chap 11"])),
+    (_ch_kw(12, "politique monétaire", "politique fiscale", "politique budgétaire", "multiplicateur"),
+     lambda s: any(x in s.lower() for x in ["12_", "ch. 12", "ch.12", "chapitre 12", "chap 12"])),
+    (_ch_kw(13, "arbitrage", "courbe de phillips", "phillips", "chômage et inflation"),
+     lambda s: any(x in s.lower() for x in ["13_", "ch. 13", "ch.13", "chapitre 13", "chap 13"])),
+    (_ch_kw(14, "grande récession", "grande recession", "lockdown", "crise", "covid"),
+     lambda s: any(x in s.lower() for x in ["14_", "ch. 14", "ch.14", "chapitre 14", "chap 14"])),
+
+    # --- Examens ---
+    (["examen", "examens", "examen passé", "ancien examen", "examen précédent",
+      "corrigé", "corrige", "annales", "exam", "épreuve"],
+     lambda s: "exam" in s.lower()),
 ]
 
 
