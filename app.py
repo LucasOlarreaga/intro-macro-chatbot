@@ -5,13 +5,15 @@ from streamlit_cookies_controller import CookieController
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
+
 def get_cookie_controller():
     return CookieController()
 
+
 # ---------------------------------------------------------------------------
-# System prompt — edit this to adjust the assistant's personality/behaviour
+# System prompts — English
 # ---------------------------------------------------------------------------
-SYSTEM_PROMPT = """You are a knowledgeable and patient teaching assistant for an Introduction to Macroeconomics course at university level.
+SYSTEM_PROMPT_EN = """You are a knowledgeable and patient teaching assistant for an Introduction to Macroeconomics course at university level. Respond in English.
 
 Your core responsibilities:
 - Help students understand course concepts through guided discovery, not by handing them answers.
@@ -24,56 +26,90 @@ Your core responsibilities:
 
 The following course documents have been indexed and are available to you:
 - Syllabus
-- Slides: Week 0 through Week 12 (including Friday sessions, which every few weeks adds content to the previous week's slides)
+- Slides: Week 0 through Week 12 (including Friday sessions)
 - Textbooks: Mankiw "Principles of Economics" (8th ed.), Krugman & Wells "Macroeconomics", and Mankiw "Macroeconomics"
 - Problem Sets: PS1, PS2, PS3, PS4, PS5 (with solutions)
 - Past Exams: August 2022, August 2024, February 2018, June 2019, June 2021, June 2023, May 2018 (all with answers)
 
-IMPORTANT: All of the above documents ARE available to you via the retrieved context below. Never tell a student that a document is missing or that you don't have access to it — if the relevant content does not appear in the context, ask the student to be more specific so a better search can be performed.
+IMPORTANT: All of the above documents ARE available to you via the retrieved context below. Never tell a student that a document is missing — if the relevant content does not appear in the context, ask the student to be more specific.
 
 Context retrieved from course materials:
 {context}
 
 Remember: your goal is to help the student learn, not to do the work for them."""
 
-DIRECT_PROMPT = """You are a knowledgeable and patient teaching assistant for an Introduction to Macroeconomics course at university level.
 
-Your core responsibilities:
-- Help students understand course concepts through guided discovery.
-- Use a Socratic approach: probe their existing understanding, ask guiding questions, and break problems into smaller steps so students reason through them on their own.
-- When a student asks for a direct answer (e.g. to an exam or problem set question), do can give the solution outright. But, try to identify where they are stuck, and walk them forward step by step.
-- ONLY use the course materials provided in the context below. If a question cannot be answered from those materials, say so clearly and suggest the student revisit the relevant lecture slides or textbook section.
-- Use clear, accessible language suited to introductory-level university students.
-- Be encouraging and supportive — learning economics can be challenging, and students benefit from positive reinforcement.
-- When relevant, reference specific models, concepts, or examples from the course (e.g. AD-AS, fiscal multiplier, money supply, etc.).
+DIRECT_PROMPT_EN = """You are a knowledgeable teaching assistant for an Introduction to Macroeconomics course at university level. Respond in English.
+
+Your role is to give clear, complete, and accurate answers to student questions.
+- Answer directly and fully — do not withhold information or use the Socratic method.
+- Base your answers ONLY on the course materials provided in the context below.
+- Be concise but thorough. Use bullet points, equations, or examples where helpful.
+- If a question cannot be answered from the course materials, say so clearly.
 
 The following course documents have been indexed and are available to you:
 - Syllabus
-- Slides: Week 0 through Week 12 (including Friday sessions, which every few weeks adds content to the previous week's slides)
+- Slides: Week 0 through Week 12 (including Friday sessions)
 - Textbooks: Mankiw "Principles of Economics" (8th ed.), Krugman & Wells "Macroeconomics", and Mankiw "Macroeconomics"
 - Problem Sets: PS1, PS2, PS3, PS4, PS5 (with solutions)
 - Past Exams: August 2022, August 2024, February 2018, June 2019, June 2021, June 2023, May 2018 (all with answers)
 
-IMPORTANT: All of the above documents ARE available to you via the retrieved context below. Never tell a student that a document is missing or that you don't have access to it — if the relevant content does not appear in the context, ask the student to be more specific so a better search can be performed.
-
 Context retrieved from course materials:
 {context}"""
 
+
 # ---------------------------------------------------------------------------
-# Load vector store (cached so it only loads once per session)
+# System prompts — French
 # ---------------------------------------------------------------------------
-@st.cache_resource(show_spinner="Loading course materials…")
-def load_vectorstore():
-    embeddings = HuggingFaceEmbeddings(
-        model_name="all-MiniLM-L6-v2",
-        model_kwargs={"device": "cpu"},
-    )
-    return FAISS.load_local(
-        "vectorstore", embeddings, allow_dangerous_deserialization=True
-    )
+SYSTEM_PROMPT_FR = """Tu es un assistant pédagogique compétent et patient pour un cours d'Introduction à la Macroéconomie de niveau universitaire. Réponds toujours en français.
+
+Tes responsabilités principales :
+- Aider les étudiants à comprendre les concepts du cours par la découverte guidée, et non en leur donnant directement les réponses.
+- Adopter une approche socratique : sonder leur compréhension existante, poser des questions directrices et décomposer les problèmes en étapes plus petites afin que les étudiants raisonnent par eux-mêmes.
+- Lorsqu'un étudiant demande une réponse directe (par exemple à une question d'examen ou de série d'exercices), NE PAS donner la solution immédiatement. Identifier où il est bloqué, offrir un indice ou une question directrice, et le guider étape par étape.
+- Utiliser UNIQUEMENT les documents du cours fournis dans le contexte ci-dessous. Si une question ne peut pas être répondue à partir de ces documents, le dire clairement et suggérer à l'étudiant de revoir les slides ou le manuel correspondant.
+- Utiliser un langage clair et accessible, adapté aux étudiants de niveau introductoire.
+- Être encourageant et bienveillant — apprendre l'économie peut être difficile, et les étudiants bénéficient d'un renforcement positif.
+- Lorsque c'est pertinent, faire référence aux modèles, concepts ou exemples spécifiques du cours (ex. : OA-DA, multiplicateur budgétaire, masse monétaire, taux de change, etc.).
+
+Les documents suivants ont été indexés et sont disponibles :
+- Syllabus
+- Slides : Chapitres 1 à 14
+- Manuels : Mankiw & Taylor (MT) et Krugman & Wells (KW)
+- Séries d'exercices (avec solutions)
+- Examens passés (avec corrigés)
+
+IMPORTANT : Tous ces documents SONT disponibles via le contexte récupéré ci-dessous. Ne jamais dire à un étudiant qu'un document est manquant — si le contenu pertinent n'apparaît pas dans le contexte, lui demander d'être plus précis.
+
+Contexte récupéré depuis les documents du cours :
+{context}
+
+Rappel : ton objectif est d'aider l'étudiant à apprendre, pas de faire le travail à sa place."""
 
 
-DOC_KEYWORDS = [
+DIRECT_PROMPT_FR = """Tu es un assistant pédagogique compétent pour un cours d'Introduction à la Macroéconomie de niveau universitaire. Réponds toujours en français.
+
+Ton rôle est de donner des réponses claires, complètes et précises aux questions des étudiants.
+- Répondre directement et complètement — ne pas retenir d'informations ni utiliser la méthode socratique.
+- Baser tes réponses UNIQUEMENT sur les documents du cours fournis dans le contexte ci-dessous.
+- Être concis mais complet. Utiliser des listes, des équations ou des exemples si utile.
+- Si une question ne peut pas être répondue à partir des documents du cours, le dire clairement.
+
+Les documents suivants ont été indexés et sont disponibles :
+- Syllabus
+- Slides : Chapitres 1 à 14
+- Manuels : Mankiw & Taylor (MT) et Krugman & Wells (KW)
+- Séries d'exercices (avec solutions)
+- Examens passés (avec corrigés)
+
+Contexte récupéré depuis les documents du cours :
+{context}"""
+
+
+# ---------------------------------------------------------------------------
+# Document keyword maps
+# ---------------------------------------------------------------------------
+EN_DOC_KEYWORDS = [
     (["ps1", "ps 1", "problem set 1"],  lambda s: "ps1" in s.lower() or "ps 1" in s.lower()),
     (["ps2", "ps 2", "problem set 2"],  lambda s: "ps2" in s.lower() or "ps 2" in s.lower()),
     (["ps3", "ps 3", "problem set 3"],  lambda s: "ps3" in s.lower() or "ps 3" in s.lower()),
@@ -95,34 +131,82 @@ DOC_KEYWORDS = [
     (["exam", "past exam", "previous exam", "old exam"], lambda s: "exam" in s.lower()),
 ]
 
+FR_DOC_KEYWORDS = [
+    # Problem sets / séries
+    (["ps1", "ps 1", "série 1", "serie 1", "td1", "td 1"],  lambda s: "ps1" in s.lower() or "ps 1" in s.lower() or "série 1" in s.lower() or "serie 1" in s.lower()),
+    (["ps2", "ps 2", "série 2", "serie 2", "td2", "td 2"],  lambda s: "ps2" in s.lower() or "ps 2" in s.lower() or "série 2" in s.lower() or "serie 2" in s.lower()),
+    (["ps3", "ps 3", "série 3", "serie 3", "td3", "td 3"],  lambda s: "ps3" in s.lower() or "ps 3" in s.lower() or "série 3" in s.lower() or "serie 3" in s.lower()),
+    (["ps4", "ps 4", "série 4", "serie 4", "td4", "td 4"],  lambda s: "ps4" in s.lower() or "ps 4" in s.lower() or "série 4" in s.lower() or "serie 4" in s.lower()),
+    (["ps5", "ps 5", "série 5", "serie 5", "td5", "td 5"],  lambda s: "ps5" in s.lower() or "ps 5" in s.lower() or "série 5" in s.lower() or "serie 5" in s.lower()),
+    # Chapters by number and topic name
+    (["chapitre 1", "ch. 1", "ch 1", "introduction", "approche macroéconomique"],
+     lambda s: any(x in s.lower() for x in ["ch. 1", "ch.1", "chapitre 1", "chap1", "chap 1"])),
+    (["chapitre 2", "ch. 2", "ch 2", "pib", "produit intérieur brut"],
+     lambda s: any(x in s.lower() for x in ["ch. 2", "ch.2", "chapitre 2", "chap 2"])),
+    (["chapitre 3", "ch. 3", "ch 3", "ipc", "indice des prix"],
+     lambda s: any(x in s.lower() for x in ["ch. 3", "ch.3", "chapitre 3", "chap 3"])),
+    (["chapitre 4", "ch. 4", "ch 4", "chômage", "chomage"],
+     lambda s: any(x in s.lower() for x in ["ch. 4", "ch.4", "chapitre 4", "chap 4"])),
+    (["chapitre 5", "ch. 5", "ch 5", "épargne", "investissement", "équilibre"],
+     lambda s: any(x in s.lower() for x in ["ch. 5", "ch.5", "chapitre 5", "chap 5"])),
+    (["chapitre 6", "ch. 6", "ch 6", "système monétaire", "systeme monetaire"],
+     lambda s: any(x in s.lower() for x in ["ch. 6", "ch.6", "chapitre 6", "chap 6"])),
+    (["chapitre 7", "ch. 7", "ch 7", "croissance monétaire", "inflation"],
+     lambda s: any(x in s.lower() for x in ["ch. 7", "ch.7", "chapitre 7", "chap 7"])),
+    (["chapitre 8", "ch. 8", "ch 8", "concepts de base", "économie ouverte"],
+     lambda s: any(x in s.lower() for x in ["ch. 8", "ch.8", "chapitre 8", "chap 8"])),
+    (["chapitre 9", "ch. 9", "ch 9", "taux de change"],
+     lambda s: any(x in s.lower() for x in ["ch. 9", "ch.9", "chapitre 9", "chap 9"])),
+    (["chapitre 10", "ch. 10", "ch 10", "modèle macroéconomique"],
+     lambda s: any(x in s.lower() for x in ["ch. 10", "ch.10", "chapitre 10", "chap 10"])),
+    (["chapitre 11", "ch. 11", "ch 11", "fluctuations", "offre agrégée", "demande agrégée"],
+     lambda s: any(x in s.lower() for x in ["ch. 11", "ch.11", "chapitre 11", "chap 11"])),
+    (["chapitre 12", "ch. 12", "ch 12", "politique monétaire", "politique fiscale"],
+     lambda s: any(x in s.lower() for x in ["ch. 12", "ch.12", "chapitre 12", "chap 12"])),
+    (["chapitre 13", "ch. 13", "ch 13", "arbitrage", "chômage et inflation"],
+     lambda s: any(x in s.lower() for x in ["ch. 13", "ch.13", "chapitre 13", "chap 13"])),
+    (["chapitre 14", "ch. 14", "ch 14", "grande récession", "lockdown"],
+     lambda s: any(x in s.lower() for x in ["ch. 14", "ch.14", "chapitre 14", "chap 14"])),
+    (["examen", "examen passé", "ancien examen", "exam"], lambda s: "exam" in s.lower()),
+]
+
+
+# ---------------------------------------------------------------------------
+# Vector store — one per language, cached separately
+# ---------------------------------------------------------------------------
+@st.cache_resource(show_spinner="Loading course materials…")
+def load_vectorstore(lang: str):
+    embeddings = HuggingFaceEmbeddings(
+        model_name="all-MiniLM-L6-v2",
+        model_kwargs={"device": "cpu"},
+    )
+    return FAISS.load_local(
+        f"vectorstore_{lang}", embeddings, allow_dangerous_deserialization=True
+    )
+
 
 def get_doc_chunks(vectorstore, filter_fn, max_chunks: int = 20):
-    """Directly scan the docstore and return chunks from matching documents."""
     matching = [
         doc for doc in vectorstore.docstore._dict.values()
         if filter_fn(doc.metadata.get("source", ""))
     ]
-    # Sort by page number so questions appear in their natural order
     matching.sort(key=lambda d: d.metadata.get("page", 0))
     return matching[:max_chunks]
 
 
-def retrieve_context(query: str, vectorstore, k: int = 12) -> str:
+def retrieve_context(query: str, vectorstore, lang: str, k: int = 12) -> str:
     query_lower = query.lower()
+    keywords_map = EN_DOC_KEYWORDS if lang == "en" else FR_DOC_KEYWORDS
 
-    # Detect specific document mentions and pull chunks directly from that doc
     targeted_docs = []
-    for keywords, filter_fn in DOC_KEYWORDS:
+    for keywords, filter_fn in keywords_map:
         if any(kw in query_lower for kw in keywords):
             targeted_docs = get_doc_chunks(vectorstore, filter_fn, max_chunks=20)
             break
 
-    # Always also do a broad semantic search
     broad_docs = vectorstore.similarity_search(query, k=k)
 
-    # Merge: targeted first, then semantic, deduplicated
-    seen = set()
-    merged = []
+    seen, merged = set(), []
     for doc in targeted_docs + broad_docs:
         key = doc.page_content[:120]
         if key not in seen:
@@ -137,81 +221,121 @@ def retrieve_context(query: str, vectorstore, k: int = 12) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Password gate
+# Password / language gate
 # ---------------------------------------------------------------------------
 def check_password():
-    # Already authenticated this session — fastest path, no rendering needed
     if st.session_state.get("authenticated"):
         return True
 
     controller = get_cookie_controller()
 
-    # Cookie controller reads via JS and needs one render cycle to load.
-    # Show a blank page on the first pass so it can initialise silently.
     if not st.session_state.get("cookie_check_done"):
         st.session_state["cookie_check_done"] = True
         st.stop()
 
-    # Second render onwards: cookie values are available
     if controller.get("macro_auth") == st.secrets["COOKIE_TOKEN"]:
         st.session_state["authenticated"] = True
         st.rerun()
         return False
 
-    st.title("AI Teaching Assistant — Introduction to Macroeconomics")
-    st.subheader("Guiding Responsible AI in Teaching")
-    st.caption("The AI pedagogical companion of GSEM faculty.")
+    # --- Language selector ---
+    lang = st.radio(
+        "Language / Langue",
+        options=["en", "fr"],
+        format_func=lambda x: "English" if x == "en" else "Français",
+        horizontal=True,
+        index=0,
+    )
+    st.session_state["lang"] = lang
+
     st.divider()
 
-    st.markdown(
-        """
-        This platform supports you in integrating Generative AI into your teaching and assessment
-        practices, in alignment with the guidelines validated by the **GSEM AI Taskforce**.
-        It is designed to help you:
+    if lang == "en":
+        st.title("AI Teaching Assistant — Introduction to Macroeconomics")
+        st.subheader("Guiding Responsible AI in Teaching")
+        st.caption("The AI pedagogical companion of GSEM faculty.")
+        st.divider()
+        st.markdown(
+            """
+            This platform supports you in integrating Generative AI into your teaching and assessment
+            practices, in alignment with the guidelines validated by the **GSEM AI Taskforce**.
+            It is designed to help you:
 
-        - Strategically incorporate AI into course design
-        - Develop academically rigorous learning activities
-        - Rethink assessment methods in the AI era
-        - Ensure alignment with institutional standards and academic integrity principles
+            - Strategically incorporate AI into course design
+            - Develop academically rigorous learning activities
+            - Rethink assessment methods in the AI era
+            - Ensure alignment with institutional standards and academic integrity principles
 
-        ---
+            ---
 
-        #### Responsible Use
+            #### Responsible Use
 
-        This assistant provides structured guidance based exclusively on validated institutional
-        documents. It does not replace academic judgment or institutional policy.
-        Faculty members remain solely responsible for:
+            This assistant provides structured guidance based exclusively on validated institutional
+            documents. It does not replace academic judgment or institutional policy.
+            Faculty members remain solely responsible for:
 
-        - Final pedagogical decisions
-        - The validation of generated content
-        - Compliance with academic and data protection standards
+            - Final pedagogical decisions
+            - The validation of generated content
+            - Compliance with academic and data protection standards
 
-        > **No confidential or student-sensitive data should be entered into the system.**
+            > **No confidential or student-sensitive data should be entered into the system.**
 
-        ---
+            ---
+            *Powered by GSEM*
+            """
+        )
+        ack_label = "I acknowledge that this assistant is a support tool that may generate inaccuracies, the verification of which remains my responsibility."
+        pw_label  = "Enter the course password to continue:"
+        btn_label = "Access"
+    else:
+        st.title("Assistant Pédagogique IA — Introduction à la Macroéconomie")
+        st.subheader("Pour un usage responsable de l'IA dans l'enseignement")
+        st.caption("L'assistant pédagogique IA de la faculté GSEM.")
+        st.divider()
+        st.markdown(
+            """
+            Cette plateforme vous accompagne dans l'intégration de l'IA générative dans vos pratiques
+            d'enseignement et d'évaluation, en accord avec les lignes directrices validées par le
+            **groupe de travail IA de la GSEM**. Elle est conçue pour vous aider à :
 
-        *Powered by GSEM*
-        """
-    )
+            - Intégrer stratégiquement l'IA dans la conception des cours
+            - Développer des activités d'apprentissage académiquement rigoureuses
+            - Repenser les méthodes d'évaluation à l'ère de l'IA
+            - Assurer l'alignement avec les normes institutionnelles et les principes d'intégrité académique
 
-    acknowledged = st.checkbox(
-        "I acknowledge that this assistant is a support tool that may generate inaccuracies, "
-        "the verification of which remains my responsibility."
-    )
-    password = st.text_input("Enter the course password to continue:", type="password")
+            ---
 
-    if st.button("Access", disabled=not acknowledged):
+            #### Utilisation responsable
+
+            Cet assistant fournit des conseils structurés basés exclusivement sur des documents
+            institutionnels validés. Il ne remplace pas le jugement académique ni la politique institutionnelle.
+            Les membres du corps enseignant restent seuls responsables de :
+
+            - Les décisions pédagogiques finales
+            - La validation du contenu généré
+            - La conformité aux normes académiques et de protection des données
+
+            > **Aucune donnée confidentielle ou sensible concernant les étudiants ne doit être saisie dans le système.**
+
+            ---
+            *Propulsé par GSEM*
+            """
+        )
+        ack_label = "Je reconnais que cet assistant est un outil d'aide susceptible de générer des inexactitudes, dont la vérification reste de ma responsabilité."
+        pw_label  = "Entrez le mot de passe du cours pour continuer :"
+        btn_label = "Accéder"
+
+    acknowledged = st.checkbox(ack_label)
+    password     = st.text_input(pw_label, type="password")
+
+    if st.button(btn_label, disabled=not acknowledged):
         if password == st.secrets["APP_PASSWORD"]:
-            # Set cookie valid for 7 days (max_age in seconds)
-            controller.set(
-                "macro_auth",
-                st.secrets["COOKIE_TOKEN"],
-                max_age=7 * 24 * 60 * 60,
-            )
+            controller.set("macro_auth", st.secrets["COOKIE_TOKEN"], max_age=7 * 24 * 60 * 60)
             st.session_state["authenticated"] = True
             st.rerun()
         else:
-            st.error("Incorrect password.")
+            err = "Incorrect password." if lang == "en" else "Mot de passe incorrect."
+            st.error(err)
 
     return False
 
@@ -229,67 +353,95 @@ def main():
     if not check_password():
         st.stop()
 
-    st.title("📚 Introduction to Macroeconomics")
-    st.subheader("AI Teaching Assistant")
-    st.caption(
-        "Ask me anything covered in the course — lectures, textbook, problem sets, or past exams. "
-        "I'll guide you through the material rather than just giving you the answer!"
-    )
-    st.divider()
-
-    # Load resources
-    try:
-        vectorstore = load_vectorstore()
-    except Exception:
-        st.error(
-            "⚠️ Vector store not found. Please run `python ingest.py` locally first "
-            "and commit the `vectorstore/` folder to your repository."
-        )
-        st.stop()
+    # Default language to EN if not set (cookie bypass skips the picker)
+    lang = st.session_state.get("lang", "en")
 
     client = anthropic.Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
 
-    # Sidebar — must be defined before chat input so direct_mode is available
+    # Sidebar — defined before chat so all toggles are available
     with st.sidebar:
-        st.header("Options")
+        st.header("Options" if lang == "en" else "Options")
         st.divider()
-        direct_mode = st.toggle(
-            "Answer directly",
-            value=False,
-            help="Off: guides you toward the answer (default). On: gives the answer directly.",
+
+        # Language toggle
+        new_lang = st.radio(
+            "Language / Langue",
+            options=["en", "fr"],
+            format_func=lambda x: "English" if x == "en" else "Français",
+            index=0 if lang == "en" else 1,
+            horizontal=True,
         )
-        if direct_mode:
-            st.caption("💡 Direct mode — full answers provided.")
-        else:
-            st.caption("🎓 Guided mode — Socratic approach.")
+        if new_lang != lang:
+            st.session_state["lang"] = new_lang
+            st.session_state["messages"] = []
+            st.rerun()
+
         st.divider()
-        if st.button("🗑️ Clear conversation"):
+
+        # Direct answer toggle
+        direct_label = "Answer directly" if lang == "en" else "Répondre directement"
+        direct_help   = (
+            "Off: guides you toward the answer. On: gives the answer directly."
+            if lang == "en" else
+            "Désactivé : vous guide vers la réponse. Activé : donne la réponse directement."
+        )
+        direct_mode = st.toggle(direct_label, value=False, help=direct_help)
+        if direct_mode:
+            st.caption("💡 Direct mode." if lang == "en" else "💡 Mode direct.")
+        else:
+            st.caption("🎓 Guided mode." if lang == "en" else "🎓 Mode guidé.")
+
+        st.divider()
+        clear_label = "🗑️ Clear conversation" if lang == "en" else "🗑️ Effacer la conversation"
+        if st.button(clear_label):
             st.session_state.messages = []
             st.rerun()
         st.caption("Powered by Claude Haiku · Built with Streamlit")
 
-    # Initialise chat history
+    # Page header
+    if lang == "en":
+        st.title("📚 Introduction to Macroeconomics")
+        st.subheader("AI Teaching Assistant")
+        st.caption("Ask me anything covered in the course — lectures, textbook, problem sets, or past exams.")
+    else:
+        st.title("📚 Introduction à la Macroéconomie")
+        st.subheader("Assistant Pédagogique IA")
+        st.caption("Posez-moi n'importe quelle question sur le cours — slides, manuel, séries d'exercices ou examens passés.")
+    st.divider()
+
+    # Load vectorstore for current language
+    try:
+        vectorstore = load_vectorstore(lang)
+    except Exception:
+        msg = (
+            f"⚠️ Vector store for '{lang}' not found. Run `python ingest.py --lang {lang}` locally and commit `vectorstore_{lang}/`."
+        )
+        st.error(msg)
+        st.stop()
+
+    # Chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Render existing messages
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # Chat input
-    if prompt := st.chat_input("Ask a question about the course…"):
+    placeholder = "Ask a question about the course…" if lang == "en" else "Posez une question sur le cours…"
+    if prompt := st.chat_input(placeholder):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Retrieve relevant context from the vector store
-        context = retrieve_context(prompt, vectorstore)
-        system = (DIRECT_PROMPT if direct_mode else SYSTEM_PROMPT).format(context=context)
+        context = retrieve_context(prompt, vectorstore, lang)
+        if lang == "en":
+            system = (DIRECT_PROMPT_EN if direct_mode else SYSTEM_PROMPT_EN).format(context=context)
+        else:
+            system = (DIRECT_PROMPT_FR if direct_mode else SYSTEM_PROMPT_FR).format(context=context)
 
-        # Call Claude
+        spinner_msg = "Thinking…" if lang == "en" else "Réflexion en cours…"
         with st.chat_message("assistant"):
-            with st.spinner("Thinking…"):
+            with st.spinner(spinner_msg):
                 response = client.messages.create(
                     model="claude-haiku-4-5-20251001",
                     max_tokens=1024,
