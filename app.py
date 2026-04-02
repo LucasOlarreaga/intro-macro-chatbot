@@ -151,11 +151,11 @@ def _ch_kw(n, *topics):
 
 EN_DOC_KEYWORDS = [
     # --- Problem sets ---
-    (_ps_kw(1), lambda s: "ps1" in s.lower() or "ps 1" in s.lower()),
-    (_ps_kw(2), lambda s: "ps2" in s.lower() or "ps 2" in s.lower()),
-    (_ps_kw(3), lambda s: "ps3" in s.lower() or "ps 3" in s.lower()),
-    (_ps_kw(4), lambda s: "ps4" in s.lower() or "ps 4" in s.lower()),
-    (_ps_kw(5), lambda s: "ps5" in s.lower() or "ps 5" in s.lower()),
+    (_ps_kw(1), lambda s: "ps 1" in s.lower() or "ps1" in s.lower()),
+    (_ps_kw(2), lambda s: "ps 2" in s.lower() or "ps2" in s.lower()),
+    (_ps_kw(3), lambda s: "ps 3" in s.lower() or "ps3" in s.lower()),
+    (_ps_kw(4), lambda s: "ps 4" in s.lower() or "ps4" in s.lower()),
+    (_ps_kw(5), lambda s: "ps 5" in s.lower() or "ps5" in s.lower()),
 
     # --- Slides / lectures by week (with topic name synonyms) ---
     (_week_kw(0,  "introduction", "overview", "course intro", "what is macroeconomics"),
