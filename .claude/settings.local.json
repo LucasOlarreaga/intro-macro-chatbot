@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(python ingest.py --lang fr)",
+      "Bash(python -c \"from app import EN_DOC_KEYWORDS, FR_DOC_KEYWORDS; print\\(''EN entries:'', len\\(EN_DOC_KEYWORDS\\)\\); print\\(''FR entries:'', len\\(FR_DOC_KEYWORDS\\)\\); print\\(''OK''\\)\")",
+      "Bash(python -c \":*)"
     ]
   }
 }
